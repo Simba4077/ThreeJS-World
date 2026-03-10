@@ -97,6 +97,13 @@ function render(time){
 }
 
 const cubes = [];
+const loadingElem = document.querySelector('#loading');
+const progressBarElem = loadingElem.querySelector('.progressbar');
+loadManager.onProgress = (urlOfLastItemLoaded, itemsLoaded, itemsTotal) => {
+    const progress = itemsLoaded / itemsTotal;
+    progressBarElem.style.transform = `scaleX(${progress})`;
+};
+        //--------------------
 function main(){
 
     //add mesh to scene
@@ -104,6 +111,7 @@ function main(){
 
     //render scene once textures load
     loadManager.onLoad = () => {
+        loadingElem.style.display ='none';
         // Mesh -----------------------------------------------------------
         //call makeInstance 3 times and story Mesh instances in an array
         cubes.push(
@@ -111,6 +119,7 @@ function main(){
             makeInstance(boxGeometry, 0x8844aa, -2),
             makeInstance(boxGeometry, 0xaa8844, 2),
         );
+        
         //-----------------------------------------------------------------
         requestAnimationFrame(render);
     };
