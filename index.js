@@ -14,8 +14,11 @@ camera.position.z = 2;
 
 // Texture loader -------------------------------------------------
 const loader = new THREE.TextureLoader();
-const texture = loader.load('wall.jpg')
-texture.colorSpace = THREE.SRGBColorSpace;
+function loadColorTexture(path){
+    const texture = loader.load(path)
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+}
 
 // ----------------------------------------------------------------
 // Scene, canvas, and renderer setup ------------------------------
@@ -32,7 +35,14 @@ const boxGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 //-----------------------------------------------------------------
 
 // Material -------------------------------------------------------
-const material = new THREE.MeshPhongMaterial({map: texture});
+const materials = [
+    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-1.jpg')}),
+    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-2.jpg')}),
+    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-3.jpg')}),
+    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-4.jpg')}),
+    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-5.jpg')}),
+    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-6.jpg')}),
+];
 //-----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
@@ -45,16 +55,16 @@ light.position.set(-1,2,4);
 // Mesh -----------------------------------------------------------
 //call makeInstance 3 times and story Mesh instances in an array
 const cubes = [
-    makeInstanceTexture(boxGeometry, material, 0),
+    makeInstanceTexture(boxGeometry, materials, 0),
     makeInstance(boxGeometry, 0x8844aa, -2),
     makeInstance(boxGeometry, 0xaa8844, 2),
 ];
 //-----------------------------------------------------------------
 
-function makeInstanceTexture(geometry, texture, x){
+function makeInstanceTexture(geometry, materials, x){
 
     //make mesh from specified geometry and material
-    const cube = new THREE.Mesh(geometry, material);
+    const cube = new THREE.Mesh(geometry, materials);
 
     //add to scene
     scene.add(cube);
