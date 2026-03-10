@@ -13,12 +13,8 @@ camera.position.z = 2;
 //-----------------------------------------------------------------
 
 // Texture loader -------------------------------------------------
-const loader = new THREE.TextureLoader();
-function loadColorTexture(path){
-    const texture = loader.load(path)
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-}
+const loadManager = new THREE.LoadingManager();
+const loader = new THREE.TextureLoader(loadManager);
 
 // ----------------------------------------------------------------
 // Scene, canvas, and renderer setup ------------------------------
@@ -36,12 +32,12 @@ const boxGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
 // Material -------------------------------------------------------
 const materials = [
-    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-1.jpg')}),
-    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-2.jpg')}),
-    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-3.jpg')}),
-    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-4.jpg')}),
-    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-5.jpg')}),
-    new THREE.MeshBasicMaterial({map: loadColorTexture('flower-6.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('flower-1.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('flower-2.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('flower-3.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('flower-4.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('flower-5.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('flower-6.jpg')}),
 ];
 //-----------------------------------------------------------------
 
@@ -52,27 +48,20 @@ const light = new THREE.DirectionalLight(color, intensity);
 light.position.set(-1,2,4);
 //-----------------------------------------------------------------
 
-// Mesh -----------------------------------------------------------
-//call makeInstance 3 times and story Mesh instances in an array
-const cubes = [
-    makeInstanceTexture(boxGeometry, materials, 0),
-    makeInstance(boxGeometry, 0x8844aa, -2),
-    makeInstance(boxGeometry, 0xaa8844, 2),
-];
-//-----------------------------------------------------------------
 
 function makeInstanceTexture(geometry, materials, x){
-
+   
     //make mesh from specified geometry and material
     const cube = new THREE.Mesh(geometry, materials);
 
     //add to scene
     scene.add(cube);
-
+        
     //set position
     cube.position.x = x;
 
     return cube;
+    
 }
 
 function makeInstance(geometry, color, x){
@@ -107,13 +96,24 @@ function render(time){
     requestAnimationFrame(render);
 }
 
+const cubes = [];
 function main(){
 
     //add mesh to scene
     scene.add(light);
 
-    //render scene
-    requestAnimationFrame(render);
+    //render scene once textures load
+    loadManager.onLoad = () => {
+        // Mesh -----------------------------------------------------------
+        //call makeInstance 3 times and story Mesh instances in an array
+        cubes.push(
+            makeInstanceTexture(boxGeometry, materials, 0),
+            makeInstance(boxGeometry, 0x8844aa, -2),
+            makeInstance(boxGeometry, 0xaa8844, 2),
+        );
+        //-----------------------------------------------------------------
+        requestAnimationFrame(render);
+    };
 
 }
 
