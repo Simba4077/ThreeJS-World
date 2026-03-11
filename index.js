@@ -21,8 +21,10 @@ const aspect = 2; // the canvas default
 const near = 0.1;
 const far = 100;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.z = 2;
-camera.position.y=1.7;
+camera.position.z = 8;
+camera.position.x = -2;
+camera.position.y=1.4;
+camera.lookAt(0, 1, -2); // aim at chair position
 //-----------------------------------------------------------------
 
 // Texture loader -------------------------------------------------
@@ -82,13 +84,15 @@ const gltfLoader = new GLTFLoader();
 gltfLoader.load('glb/Phone.glb', (gltf) => {
     const phone = gltf.scene;
     phone.scale.set(0.02, 0.02, 0.02);
-    phone.position.set(-2, 0.3, 0);
+    phone.position.set(-0.5, -0.1, -1.2);
+    phone.rotation.set(0,-Math.PI / 4, 0); 
     scene.add(phone);
 });
 gltfLoader.load('glb/Gun.glb', (gltf) => {
     const gun = gltf.scene;
     gun.scale.set(0.3, 0.3, 0.3);
-    gun.position.set(0, 1, -1);
+    gun.position.set(.2, -0.2, -1);
+    gun.rotation.set(Math.PI / 2, 0,Math.PI/6); 
     scene.add(gun);
 })
 gltfLoader.load('glb/Chair.glb', (gltf) => {
@@ -96,6 +100,12 @@ gltfLoader.load('glb/Chair.glb', (gltf) => {
     chair.scale.set(1, 1, 1);
     chair.position.set(0, -2, -3);
     scene.add(chair);
+})
+gltfLoader.load('glb/Table.glb', (gltf) => {
+    const table = gltf.scene;
+    table.scale.set(3, 3, 3);
+    table.position.set(0, -2, -1);
+    scene.add(table);
 })
 //----------------------------------------------------------------
 
