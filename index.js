@@ -66,20 +66,16 @@ const sky_texture = sky_loader.load([
 const gltfLoader = new GLTFLoader();
 gltfLoader.load('glb/Phone.glb', (gltf) => {
     const phone = gltf.scene;
-
-    // check what materials loaded
-    phone.traverse((child) => {
-        if (child.isMesh) {
-            console.log('mesh:', child.name);
-            console.log('material:', child.material);
-            console.log('texture:', child.material.map);
-        }
-    });
-
     phone.scale.set(0.1, 0.1, 0.1);
     phone.position.set(0, -3, 0);
     scene.add(phone);
 });
+gltfLoader.load('glb/Gun.glb', (gltf) => {
+    const gun = gltf.scene;
+    gun.scale.set(0.8, 0.8, 0.8);
+    gun.position.set(0, 1, -1);
+    scene.add(gun);
+})
 //----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
