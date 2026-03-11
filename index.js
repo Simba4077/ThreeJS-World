@@ -141,6 +141,13 @@ gltfLoader.load('glb/Plant.glb', (gltf) => {
     plant.position.set(-6.8, -1, -2.5);
     scene.add(plant);
 })
+gltfLoader.load('glb/Bookshelf.glb', (gltf) => {
+    const bookshelf = gltf.scene;
+    bookshelf.scale.set(3, 2, 4);
+    bookshelf.position.set(-1.6, -2, -9.5);
+    bookshelf.rotation.set(0,-Math.PI/7,0);
+    scene.add(bookshelf);
+})
 gltfLoader.load('glb/Carpet.glb', (gltf) => {
     const carpet = gltf.scene;
     carpet.scale.set(4, 4, 4);
