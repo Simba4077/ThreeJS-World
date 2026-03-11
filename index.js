@@ -167,14 +167,59 @@ gltfLoader.load('glb/Lamp.glb', (gltf) => {
     lamp.position.set(0, -0.4, -5);
     scene.add(lamp);
 })
-gltfLoader.load('glb/TV.glb', (gltf) => {
+
+let tvMesh = null;
+let tvOn = false;
+
+function makeStaticTexture() {
+    const size = 256;
+    const data = new Uint8Array(size * size * 4);
+    for (let i = 0; i < data.length; i += 4) {
+        const v = Math.random() * 255;
+        data[i] = data[i+1] = data[i+2] = v;
+        data[i+3] = 255;
+    }
+    const texture = new THREE.DataTexture(data, size, size);
+    texture.needsUpdate = true;
+    return texture;
+}
+
+gltfLoader.load('glb/TV1.glb', (gltf) => {
     const tv = gltf.scene;
     enableShadows(gltf);
+    tv.traverse((child) => {
+        if (child.isMesh) {
+            console.log('TV mesh:', child.name); // check the name printed
+        }
+        if (child.isMesh && child.name === 'TVScreen') {
+            tvMesh = child;
+            tvMesh.material = new THREE.MeshStandardMaterial({
+                color: 0x111111,
+                emissive: 0x000000,
+                emissiveIntensity: 0,
+                roughness: 0.1,
+                metalness: 0,
+            });
+        }
+    });
     tv.scale.set(0.07, 0.07, 0.07);
     tv.position.set(-6, -0.3, -4);
-    tv.rotation.set(0,-Math.PI/1.5,Math.PI);
+    tv.rotation.set(0, -Math.PI/1.5, Math.PI);
     scene.add(tv);
 })
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 't' || e.key === 'T') {
+        tvOn = !tvOn;
+        if (tvMesh) {
+            tvMesh.material.emissive.set(tvOn ? 0xffffff : 0x000000);
+            tvMesh.material.emissiveMap = tvOn ? makeStaticTexture() : null;
+            tvMesh.material.emissiveIntensity = tvOn ? 1 : 0;
+            tvMesh.material.needsUpdate = true;
+        }
+    }
+});
+
 gltfLoader.load('glb/Plant.glb', (gltf) => {
     const plant = gltf.scene;
     enableShadows(gltf);
@@ -455,6 +500,7 @@ function main(){
             -2.4 + 1,
             3
         );
+        
 
         requestAnimationFrame(render);
     };
