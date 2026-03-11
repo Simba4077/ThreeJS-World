@@ -142,9 +142,42 @@ gltfLoader.load('glb/TVTable.glb', (gltf) => {
     tvtable.rotation.set(0,-Math.PI/2,0);
     scene.add(tvtable);
 })
-
+let dog; //pasing as global, since going to be moving dog around
+gltfLoader.load('glb/Dog.glb', (gltf) => {
+    dog = gltf.scene;
+    dog.scale.set(2, 2, 3);
+    dog.position.set(-6.3, -2, -5);
+    scene.add(dog);
+})
 //----------------------------------------------------------------
+const waypoints = [
+    new THREE.Vector3(3, -2, 3),
+    new THREE.Vector3(3, -2, -3),
+    new THREE.Vector3(-3, -2, -3),
+    new THREE.Vector3(-3, -2, 3),
+];
+let waypointIndex = 0;
 
+function move_dog(delta){
+    if (!dog) return;
+    
+    const speed = 2;
+    const target = waypoints[waypointIndex];
+    const direction = target.clone().sub(dog.position);
+    const distance = direction.length();
+
+    if (distance < 0.1) {
+        // reached waypoint, move to next
+        waypointIndex = (waypointIndex + 1) % waypoints.length;
+    } else {
+        // move toward waypoint
+        direction.normalize();
+        dog.position.addScaledVector(direction, speed * delta);
+
+        // face direction of movement
+        dog.rotation.y = Math.atan2(direction.x, direction.z);
+    }
+}
 //Lighting --------------------------------------------------------
 
 //Diffuse/directional lighting -------------------------
@@ -245,6 +278,8 @@ function move(){
 const clock = new THREE.Clock();
 function render(time){
     time *= 0.001;
+    const delta = clock.getDelta();
+    move_dog(delta);
     move();
     composer.render();
 
