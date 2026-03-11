@@ -118,9 +118,14 @@ gltfLoader.load('glb/TV.glb', (gltf) => {
     tv.scale.set(0.07, 0.07, 0.07);
     tv.position.set(-6, -0.3, -4);
     tv.rotation.set(0,-Math.PI/1.5,Math.PI);
-    // tv.rotation.set(0,Math.PI/2,0); 
-
     scene.add(tv);
+})
+gltfLoader.load('glb/TVTable.glb', (gltf) => {
+    const tvtable = gltf.scene;
+    tvtable.scale.set(2, 2, 3);
+    tvtable.position.set(-6.3, -2, -5);
+    tvtable.rotation.set(0,-Math.PI/2,0);
+    scene.add(tvtable);
 })
 
 //----------------------------------------------------------------
