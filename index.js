@@ -93,11 +93,22 @@ floorTexture.repeat.set(10,10);
 const floorMaterial = new THREE.MeshStandardMaterial({map:floorTexture});
 //-----------------------------------------------------------------
 
+//GLTF enable shadows ---------------------------------------------
+function enableShadows(gltf) {
+    gltf.scene.traverse((child) => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+    });
+}
+//-----------------------------------------------------------------
 
 // GLTF Loader ----------------------------------------------------
 const gltfLoader = new GLTFLoader();
 gltfLoader.load('glb/Phone.glb', (gltf) => {
     const phone = gltf.scene;
+    enableShadows(gltf);
     phone.scale.set(0.02, 0.02, 0.02);
     phone.position.set(-0.5, -0.3, -1.2);
     phone.rotation.set(0,-Math.PI / 4, 0); 
@@ -105,6 +116,7 @@ gltfLoader.load('glb/Phone.glb', (gltf) => {
 });
 gltfLoader.load('glb/Gun.glb', (gltf) => {
     const gun = gltf.scene;
+    enableShadows(gltf);
     gun.scale.set(0.3, 0.3, 0.3);
     gun.position.set(.2, -0.3, -1);
     gun.rotation.set(Math.PI / 2, 0,Math.PI/6); 
@@ -112,24 +124,28 @@ gltfLoader.load('glb/Gun.glb', (gltf) => {
 })
 gltfLoader.load('glb/Chair.glb', (gltf) => {
     const chair = gltf.scene;
+    enableShadows(gltf);
     chair.scale.set(1, 1, 1);
     chair.position.set(0, -2, -3);
     scene.add(chair);
 })
 gltfLoader.load('glb/Table.glb', (gltf) => {
     const table = gltf.scene;
+    enableShadows(gltf);
     table.scale.set(3, 3, 3);
     table.position.set(0, -2, -1);
     scene.add(table);
 })
 gltfLoader.load('glb/Lamp.glb', (gltf) => {
     const lamp = gltf.scene;
+    enableShadows(gltf);
     lamp.scale.set(0.2, 0.2, 0.2);
     lamp.position.set(0, -0.3, -5);
     scene.add(lamp);
 })
 gltfLoader.load('glb/TV.glb', (gltf) => {
     const tv = gltf.scene;
+    enableShadows(gltf);
     tv.scale.set(0.07, 0.07, 0.07);
     tv.position.set(-6, -0.3, -4);
     tv.rotation.set(0,-Math.PI/1.5,Math.PI);
@@ -137,18 +153,21 @@ gltfLoader.load('glb/TV.glb', (gltf) => {
 })
 gltfLoader.load('glb/Plant.glb', (gltf) => {
     const plant = gltf.scene;
+    enableShadows(gltf);
     plant.scale.set(3, 3, 3);
     plant.position.set(-6.8, -1, -2.5);
     scene.add(plant);
 })
 gltfLoader.load('glb/Candle.glb', (gltf) => {
     const candle = gltf.scene;
+    enableShadows(gltf);
     candle.scale.set(.4, .4, .4);
     candle.position.set(-1.2, .6, -9.5);
     scene.add(candle);
 })
 gltfLoader.load('glb/Bookshelf.glb', (gltf) => {
     const bookshelf = gltf.scene;
+    enableShadows(gltf);
     bookshelf.scale.set(3, 1.4, 4);
     bookshelf.position.set(-1.6, -2, -9.5);
     bookshelf.rotation.set(0,-Math.PI/7,0);
@@ -156,6 +175,7 @@ gltfLoader.load('glb/Bookshelf.glb', (gltf) => {
 })
 gltfLoader.load('glb/Carpet.glb', (gltf) => {
     const carpet = gltf.scene;
+    enableShadows(gltf);
     carpet.scale.set(4, 4, 4);
     carpet.position.set(-3, -1.9, -4);
     carpet.traverse((child) => {
@@ -167,6 +187,7 @@ gltfLoader.load('glb/Carpet.glb', (gltf) => {
 })
 gltfLoader.load('glb/TVTable.glb', (gltf) => {
     const tvtable = gltf.scene;
+    enableShadows(gltf);
     tvtable.scale.set(2, 2, 3);
     tvtable.position.set(-6.3, -2, -5);
     tvtable.rotation.set(0,-Math.PI/2,0);
@@ -175,6 +196,7 @@ gltfLoader.load('glb/TVTable.glb', (gltf) => {
 let dog; //pasing as global, since going to be moving dog around
 gltfLoader.load('glb/Dog.glb', (gltf) => {
     dog = gltf.scene;
+    enableShadows(gltf);
     dog.scale.set(1.5, 1.5, 1.5);
     dog.position.set(-3, -1.2, 3);
     scene.add(dog);
@@ -182,6 +204,7 @@ gltfLoader.load('glb/Dog.glb', (gltf) => {
 let skateboard;
 gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
     skateboard = gltf.scene;
+    enableShadows(gltf);
     skateboard.scale.set(.1, .1, .1);
     skateboard.position.set(-3, -1.4, 3);
     scene.add(skateboard);
@@ -240,6 +263,7 @@ const diffuse_color = 0xFFFFFF;
 const intensity = 2; 
 const light = new THREE.DirectionalLight(diffuse_color, intensity);
 light.position.set(-1,2,4);
+light.castShadow = true;
 //------------------------------------------------------
 
 //Ambient lighting -------------------------------------
