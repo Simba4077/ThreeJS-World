@@ -107,6 +107,12 @@ gltfLoader.load('glb/Table.glb', (gltf) => {
     table.position.set(0, -2, -1);
     scene.add(table);
 })
+gltfLoader.load('glb/Lamp.glb', (gltf) => {
+    const lamp = gltf.scene;
+    lamp.scale.set(0.2, 0.2, 0.2);
+    lamp.position.set(0, -0.2, -5);
+    scene.add(lamp);
+})
 //----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
