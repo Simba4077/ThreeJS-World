@@ -525,8 +525,8 @@ function makeInstance(geometry, color, x){
 //Collision check-----------------------------------------------
 function checkCollision(newPos) {
     const playerBox = new THREE.Box3(
-        new THREE.Vector3(newPos.x - 0.4, newPos.y - 1, newPos.z - 0.4),
-        new THREE.Vector3(newPos.x + 0.4, newPos.y + 0.5, newPos.z + 0.4)
+        new THREE.Vector3(newPos.x - 0.1, newPos.y - 1, newPos.z - 0.1),
+        new THREE.Vector3(newPos.x + 0.1, newPos.y + 0.5, newPos.z + 0.1)
     );
     for (const box of colliders) {
         if (playerBox.intersectsBox(box)) return true;
