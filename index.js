@@ -184,7 +184,7 @@ function makeStaticTexture() {
     return texture;
 }
 
-gltfLoader.load('glb/TV1.glb', (gltf) => {
+gltfLoader.load('glb/TV.glb', (gltf) => {
     const tv = gltf.scene;
     enableShadows(gltf);
     tv.traverse((child) => {
@@ -466,8 +466,9 @@ let newsTV = null;
 function turnOnTV() {
     newsTV = createNewsTexture();
     newsTV.texture.flipY=false;
+
     newsTV.texture.center.set(0.5, 0.5);
-    newsTV.texture.rotation = Math.PI; // flip it
+    newsTV.texture.rotation = -Math.PI/2; // flip it
     newsTV.texture.repeat.set(-1, -1); // mirror to correct orientation
     tvMesh.material.emissiveMap = newsTV.texture;
     tvMesh.material.emissive.set(0xffffff);
@@ -604,7 +605,7 @@ function createNewsTexture() {
         
         // glitchy main headline
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 22px monospace';
+        ctx.font = 'bold 18px monospace';
         ctx.textAlign = 'center';
         const headline = headlines[headlineIndex % headlines.length];
         
