@@ -135,6 +135,23 @@ gltfLoader.load('glb/TV.glb', (gltf) => {
     tv.rotation.set(0,-Math.PI/1.5,Math.PI);
     scene.add(tv);
 })
+gltfLoader.load('glb/Plant.glb', (gltf) => {
+    const plant = gltf.scene;
+    plant.scale.set(3, 3, 3);
+    plant.position.set(-6.8, -1, -2.5);
+    scene.add(plant);
+})
+gltfLoader.load('glb/Carpet.glb', (gltf) => {
+    const carpet = gltf.scene;
+    carpet.scale.set(4, 4, 4);
+    carpet.position.set(-3, -1.9, -4);
+    carpet.traverse((child) => {
+        if (child.isMesh) {
+            child.material.color.multiplyScalar(2); 
+        }
+    });
+    scene.add(carpet);
+})
 gltfLoader.load('glb/TVTable.glb', (gltf) => {
     const tvtable = gltf.scene;
     tvtable.scale.set(2, 2, 3);
@@ -156,6 +173,8 @@ gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
     skateboard.position.set(-3, -1.4, 3);
     scene.add(skateboard);
 })
+
+
 //----------------------------------------------------------------
 const waypoints = [
     new THREE.Vector3(3, -1, 3),
