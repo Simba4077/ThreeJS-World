@@ -76,6 +76,12 @@ gltfLoader.load('glb/Gun.glb', (gltf) => {
     gun.position.set(0, 1, -1);
     scene.add(gun);
 })
+gltfLoader.load('glb/Chair.glb', (gltf) => {
+    const chair = gltf.scene;
+    chair.scale.set(0.2, 0.2, 0.2);
+    chair.position.set(0, -1, -3);
+    scene.add(chair);
+})
 //----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
