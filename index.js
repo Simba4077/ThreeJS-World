@@ -64,25 +64,22 @@ const sky_texture = sky_loader.load([
 
 // GLTF Loader ----------------------------------------------------
 const gltfLoader = new GLTFLoader();
-gltfLoader.load(
-    'glb/Phone.glb', 
-    (gltf) => {
-        console.log('loaded:', gltf);
-        const phone = gltf.scene;
-        phone.traverse((child) => {
-            console.log('child:', child.name, child.type);
-        });
-        phone.scale.set(0.3, 0.3, 0.3);
-        phone.position.set(0, -3, 0);
-        scene.add(phone);
-    },
-    (progress) => {
-        console.log('progress:', progress);
-    },
-    (error) => {
-        console.error('error loading glb:', error); // this will tell us what's wrong
-    }
-);
+gltfLoader.load('glb/Phone.glb', (gltf) => {
+    const phone = gltf.scene;
+
+    // check what materials loaded
+    phone.traverse((child) => {
+        if (child.isMesh) {
+            console.log('mesh:', child.name);
+            console.log('material:', child.material);
+            console.log('texture:', child.material.map);
+        }
+    });
+
+    phone.scale.set(0.1, 0.1, 0.1);
+    phone.position.set(0, -3, 0);
+    scene.add(phone);
+});
 //----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
