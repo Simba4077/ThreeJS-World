@@ -6,6 +6,11 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 //import HDR loader
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+//import vignette effects
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { VignetteShader } from 'three/addons/shaders/VignetteShader.js';
 // --------------------------------------------------------------
 
 
@@ -17,7 +22,7 @@ const near = 0.1;
 const far = 100;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.z = 2;
-camera.position.y=1.3;
+camera.position.y=1.7;
 //-----------------------------------------------------------------
 
 // Texture loader -------------------------------------------------
@@ -40,9 +45,17 @@ rgbeLoader.load('textures/room.hdr', (texture) => {
 const scene = new THREE.Scene();
 const canvas = document.getElementById("myCanvas");
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1;
+renderer.toneMapping = THREE.CineonToneMapping;
+//-----------------------------------------------------------------
+
+//Vignette effects-------------------------------------------------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const vignettePass = new ShaderPass(VignetteShader);
+vignettePass.uniforms['offset'].value = 0.95; // size of vignette
+vignettePass.uniforms['darkness'].value = 1.6; // how dark the edges are
+composer.addPass(vignettePass);
 //-----------------------------------------------------------------
 
 // Geometries -----------------------------------------------------
@@ -50,18 +63,10 @@ const boxWidth = 1;
 const boxHeight = 1;
 const boxDepth = 1;
 const boxGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+const floorGeometry = new THREE.PlaneGeometry(100, 100);
 //-----------------------------------------------------------------
 
 // Material -------------------------------------------------------
-const materials = [
-    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-1.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-2.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-3.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-4.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-5.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-6.jpg')}),
-];
-
 const floorTexture = loader.load('textures/Floor.jpg');
 floorTexture.wrapS = THREE.RepeatWrapping;
 floorTexture.wrapT = THREE.RepeatWrapping;
@@ -74,13 +79,13 @@ const floorMaterial = new THREE.MeshStandardMaterial({map:floorTexture});
 const gltfLoader = new GLTFLoader();
 gltfLoader.load('glb/Phone.glb', (gltf) => {
     const phone = gltf.scene;
-    phone.scale.set(0.1, 0.1, 0.1);
-    phone.position.set(0, -3, 0);
+    phone.scale.set(0.02, 0.02, 0.02);
+    phone.position.set(-2, 0.3, 0);
     scene.add(phone);
 });
 gltfLoader.load('glb/Gun.glb', (gltf) => {
     const gun = gltf.scene;
-    gun.scale.set(0.8, 0.8, 0.8);
+    gun.scale.set(0.3, 0.3, 0.3);
     gun.position.set(0, 1, -1);
     scene.add(gun);
 })
@@ -170,7 +175,7 @@ const clock = new THREE.Clock();
 function render(time){
     time *= 0.001;
     move();
-    renderer.render(scene, camera);
+    composer.render();
 
     // //animate Mesh cube array
     // cubes.forEach((cube, ndx) => {
@@ -197,9 +202,9 @@ function main(){
     //render scene once textures load
     loadManager.onLoad = () => {
         loadingElem.style.display ='none';
-        const floor = makeInstanceTexture(boxGeometry, floorMaterial,-1);
-        floor.scale.set(30,.2,30);
-        floor.position.set(0,-2,0);
+        const floor = makeInstanceTexture(floorGeometry, floorMaterial,-1);
+        floor.rotation.x = -Math.PI / 2; // rotate flat
+        floor.position.set(0,-1.9,0);
         requestAnimationFrame(render);
     };
 
