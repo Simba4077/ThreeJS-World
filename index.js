@@ -1,6 +1,17 @@
 //import three.js -----------------------------------------------
 import * as THREE from 'three';
+//import objloader.js
+import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+//import orbit controls
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // --------------------------------------------------------------
+
+// OBJ Loader ----------------------------------------------------
+const objLoader = new OBJLoader();
+objLoader.load('windmill_001.obj', (root) => {
+    scene.add(root);
+})
+//----------------------------------------------------------------
 
 // Camera setup --------------------------------------------------
 //camera default to looking across -z axis, with +y axis facing up
@@ -47,6 +58,13 @@ const intensity = 3;
 const light = new THREE.DirectionalLight(color, intensity);
 light.position.set(-1,2,4);
 //-----------------------------------------------------------------
+
+
+// Orbit Controls -----------------------------------------------
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.update();
+//-----------------------------------------------------------------
+
 
 
 function makeInstanceTexture(geometry, materials, x){
@@ -103,7 +121,8 @@ loadManager.onProgress = (urlOfLastItemLoaded, itemsLoaded, itemsTotal) => {
     const progress = itemsLoaded / itemsTotal;
     progressBarElem.style.transform = `scaleX(${progress})`;
 };
-        //--------------------
+
+
 function main(){
 
     //add mesh to scene
@@ -119,7 +138,6 @@ function main(){
             makeInstance(boxGeometry, 0x8844aa, -2),
             makeInstance(boxGeometry, 0xaa8844, 2),
         );
-        
         //-----------------------------------------------------------------
         requestAnimationFrame(render);
     };
