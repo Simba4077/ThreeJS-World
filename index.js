@@ -103,7 +103,7 @@ gltfLoader.load('glb/Chair.glb', (gltf) => {
 
 //Diffuse/directional lighting -------------------------
 const diffuse_color = 0xFFFFFF;
-const intensity = 3; 
+const intensity = 1; 
 const light = new THREE.DirectionalLight(diffuse_color, intensity);
 light.position.set(-1,2,4);
 //------------------------------------------------------
