@@ -189,7 +189,7 @@ gltfLoader.load('glb/TV1.glb', (gltf) => {
     enableShadows(gltf);
     tv.traverse((child) => {
         if (child.isMesh) {
-            console.log('TV mesh:', child.name); // check the name printed
+            console.log('TV mesh:', child.name);
         }
         if (child.isMesh && child.name === 'TVScreen') {
             tvMesh = child;
@@ -211,10 +211,13 @@ gltfLoader.load('glb/TV1.glb', (gltf) => {
 window.addEventListener('keydown', (e) => {
     if (e.key === 't' || e.key === 'T') {
         tvOn = !tvOn;
-        if (tvMesh) {
-            tvMesh.material.emissive.set(tvOn ? 0xffffff : 0x000000);
-            tvMesh.material.emissiveMap = tvOn ? makeStaticTexture() : null;
-            tvMesh.material.emissiveIntensity = tvOn ? 1 : 0;
+        if (tvOn && tvMesh) {
+            turnOnTV();
+        } else if (tvMesh) {
+            newsTV = null;
+            tvMesh.material.emissive.set(0x000000);
+            tvMesh.material.emissiveMap = null;
+            tvMesh.material.emissiveIntensity = 0;
             tvMesh.material.needsUpdate = true;
         }
     }
@@ -457,13 +460,26 @@ function move(delta){
 
 let frameCount = 0;
 const clock = new THREE.Clock();
+let newsTV = null;
+
+// when TV turns on:
+function turnOnTV() {
+    newsTV = createNewsTexture();
+    newsTV.texture.flipY=false;
+    newsTV.texture.center.set(0.5, 0.5);
+    newsTV.texture.rotation = Math.PI; // flip it
+    newsTV.texture.repeat.set(-1, -1); // mirror to correct orientation
+    tvMesh.material.emissiveMap = newsTV.texture;
+    tvMesh.material.emissive.set(0xffffff);
+    tvMesh.material.emissiveIntensity = 1.5;
+    tvMesh.material.needsUpdate = true;
+}
+
 function render(time){
     time *= 0.001;
     const delta = clock.getDelta();
-    frameCount++;
-    if (tvOn && tvMesh && frameCount % 3 === 0) {
-        tvMesh.material.emissiveMap = makeStaticTexture();
-        tvMesh.material.needsUpdate = true;
+    if (tvOn && newsTV) {
+        newsTV.drawFrame(time);
     }
     flicker(time);
     move_dog(delta);
@@ -517,3 +533,143 @@ function main(){
 
 // call main
 main()
+
+
+
+//Create news texture------------------------------------
+function createNewsTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    
+    const headlines = [
+        "BREAKING: US strike likely hit school in Iran due to outdated intelligence, sources say",
+        "BREAKING: U.S. military is using AI to help plan Iran air attacks, sources say, as lawmakers call for oversight", 
+        "BREAKING: Millions face tornado and storm warnings after homes destroyed in Midwest",
+        "BREAKING: Iran War’s oil spike fuels Republican anxieties about midterms",
+        "BREAKING: Foreign hacker reportedly breached FBI servers holding Epstein files in 2023",
+        "BREAKING: Justice Department posts more Epstein files related to accusations about Trump",
+    ];
+    
+    let tickerX = 512;
+    let headlineIndex = 0;
+    let glitchTimer = 0;
+    let scanlineOffset = 0;
+    
+    function drawFrame(time) {
+        // background - dark grey like old CRT
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(0, 0, 512, 512);
+        
+        // random glitch blocks
+        glitchTimer++;
+        if (glitchTimer % 20 === 0) {
+            for (let i = 0; i < 3; i++) {
+                const gy = Math.random() * 400;
+                const gh = Math.random() * 30 + 5;
+                ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.3})`;
+                ctx.fillRect(0, gy, 512, gh);
+            }
+        }
+        
+        // static noise overlay
+        for (let i = 0; i < 800; i++) {
+            const x = Math.random() * 512;
+            const y = Math.random() * 400;
+            const brightness = Math.random() * 255;
+            ctx.fillStyle = `rgba(${brightness},${brightness},${brightness},0.15)`;
+            ctx.fillRect(x, y, 2, 2);
+        }
+        
+        // top bar - red breaking news banner
+        ctx.fillStyle = '#cc0000';
+        ctx.fillRect(0, 0, 512, 50);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 28px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚠ BREAKING NEWS ⚠', 256, 35);
+        
+        // channel logo top right
+        ctx.fillStyle = '#ffcc00';
+        ctx.font = 'bold 16px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText('CH-6 NEWS', 505, 20);
+        
+        // main content area - dark with vignette feel
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 50, 512, 350);
+        
+        // glitchy main headline
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px monospace';
+        ctx.textAlign = 'center';
+        const headline = headlines[headlineIndex % headlines.length];
+        
+        // split into two lines if long
+        const words = headline.split(' ');
+        const mid = Math.floor(words.length / 2);
+        const line1 = words.slice(0, mid).join(' ');
+        const line2 = words.slice(mid).join(' ');
+        ctx.fillText(line1, 256, 180);
+        ctx.fillText(line2, 256, 210);
+        
+        // timestamp
+        ctx.fillStyle = '#aaaaaa';
+        ctx.font = '14px monospace';
+        ctx.textAlign = 'left';
+        const now = new Date();
+        ctx.fillText(now.toTimeString().slice(0,8) + ' EST', 10, 380);
+        
+        // LIVE badge
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(420, 360, 80, 28);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('● LIVE', 460, 380);
+        
+        // bottom ticker bar
+        ctx.fillStyle = '#000066';
+        ctx.fillRect(0, 400, 512, 40);
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillRect(0, 400, 130, 40);
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 18px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('URGENT', 65, 425);
+        
+        // scrolling ticker text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '16px monospace';
+        ctx.textAlign = 'left';
+        ctx.save();
+        ctx.rect(130, 400, 382, 40);
+        ctx.clip();
+        const tickerText = headlines.join('   ///   ');
+        ctx.fillText(tickerText, tickerX, 425);
+        ctx.restore();
+        
+        // advance ticker
+        tickerX -= 1;
+        const textWidth = ctx.measureText(tickerText).width;
+        if (tickerX < -textWidth) {
+            tickerX = 512;
+            headlineIndex++;
+        }
+        
+        // scanlines overlay
+        scanlineOffset = (scanlineOffset + 1) % 4;
+        for (let y = scanlineOffset; y < 512; y += 4) {
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.fillRect(0, y, 512, 2);
+        }
+        
+        texture.needsUpdate = true;
+    }
+    
+    return { texture, drawFrame };
+}
+//-------------------------------------------------------
