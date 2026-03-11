@@ -145,37 +145,51 @@ gltfLoader.load('glb/TVTable.glb', (gltf) => {
 let dog; //pasing as global, since going to be moving dog around
 gltfLoader.load('glb/Dog.glb', (gltf) => {
     dog = gltf.scene;
-    dog.scale.set(2, 2, 3);
-    dog.position.set(-6.3, -2, -5);
+    dog.scale.set(1.5, 1.5, 1.5);
+    dog.position.set(-6.3, -1.2, -5);
     scene.add(dog);
+})
+let skateboard;
+gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
+    skateboard = gltf.scene;
+    skateboard.scale.set(.1, .1, .1);
+    skateboard.position.set(-6.3, -1.4, -5);
+    scene.add(skateboard);
 })
 //----------------------------------------------------------------
 const waypoints = [
-    new THREE.Vector3(3, -2, 3),
-    new THREE.Vector3(3, -2, -5),
-    new THREE.Vector3(-3, -2, -5),
-    new THREE.Vector3(-3, -2, 3),
+    new THREE.Vector3(3, -1, 3),
+    new THREE.Vector3(3, -1, -5),
+    new THREE.Vector3(-3, -1, -5),
+    new THREE.Vector3(-3, -1, 3),
 ];
 let waypointIndex = 0;
 
 function move_dog(delta){
     if (!dog) return;
+    if(!skateboard) return;
     
     const speed = 2;
     const target = waypoints[waypointIndex];
     const direction = target.clone().sub(dog.position);
     const distance = direction.length();
+    const direction2 = target.clone().sub(skateboard.position);
+    const distance2 = direction.length();
 
-    if (distance < 0.1) {
+    if (distance < 0.1 || distance2 < 0.1) {
         // reached waypoint, move to next
         waypointIndex = (waypointIndex + 1) % waypoints.length;
     } else {
         // move toward waypoint
         direction.normalize();
+        direction2.normalize();
         dog.position.addScaledVector(direction, speed * delta);
+        skateboard.position.addScaledVector(direction, speed * delta);
+
 
         // face direction of movement
         dog.rotation.y = Math.atan2(direction.x, direction.z);
+        skateboard.rotation.y = Math.atan2(direction.x, direction.z) + Math.PI / 2;
     }
 }
 //Lighting --------------------------------------------------------
