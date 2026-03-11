@@ -59,6 +59,12 @@ const sky_texture = sky_loader.load([
     'textures/pos-z.jpg',
     'textures/neg-z.jpg'
 ]);
+
+const floorTexture = loader.load('textures/Floor.jpg');
+floorTexture.wrapS = THREE.RepeatWrapping;
+floorTexture.wrapT = THREE.RepeatWrapping;
+floorTexture.repeat.set(10,10);
+const floorMaterial = new THREE.MeshStandardMaterial({map:floorTexture});
 //-----------------------------------------------------------------
 
 
@@ -88,7 +94,7 @@ gltfLoader.load('glb/Chair.glb', (gltf) => {
 
 //Diffuse/directional lighting -------------------------
 const diffuse_color = 0xFFFFFF;
-const intensity = 30; 
+const intensity = 3; 
 const light = new THREE.DirectionalLight(diffuse_color, intensity);
 light.position.set(-1,2,4);
 //------------------------------------------------------
@@ -202,6 +208,12 @@ function main(){
             makeInstance(boxGeometry, 0xaa8844, 2),
         );
         //-----------------------------------------------------------------
+
+        const floor = makeInstanceTexture(boxGeometry, floorMaterial,-1);
+        floor.scale.set(30,.2,30);
+        floor.position.set(0,-2,0);
+
+
         requestAnimationFrame(render);
     };
 
