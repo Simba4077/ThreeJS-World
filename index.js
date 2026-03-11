@@ -113,6 +113,15 @@ gltfLoader.load('glb/Lamp.glb', (gltf) => {
     lamp.position.set(0, -0.3, -5);
     scene.add(lamp);
 })
+gltfLoader.load('glb/TV.glb', (gltf) => {
+    const tv = gltf.scene;
+    tv.scale.set(0.07, 0.07, 0.07);
+    tv.position.set(-6, -0.3, -4);
+    tv.rotation.set(0,-Math.PI/1.5,Math.PI);
+    // tv.rotation.set(0,Math.PI/2,0); 
+
+    scene.add(tv);
+})
 
 //----------------------------------------------------------------
 
