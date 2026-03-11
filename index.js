@@ -56,6 +56,8 @@ renderer.toneMappingExposure = 0.68;
 renderer.shadowMap.enabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+scene.add(camera);
+
 
 // handle window resize
 window.addEventListener('resize', () => {
@@ -135,27 +137,22 @@ gltfLoader.load('glb/Gun.glb', (gltf) => {
     gun.rotation.set(Math.PI / 2, 0,Math.PI/6); 
     scene.add(gun);
 })
-
 window.addEventListener('keydown', (e) => {
     if (e.key === 'e' || e.key === 'E') {
         if (!gunMesh) return;
 
         if (!gunPickedUp) {
-            // check distance from camera to gun
             const dist = camera.position.distanceTo(gunMesh.position);
-            if (dist < 3) {
+            if (dist < 4) {
                 gunPickedUp = true;
-                camera.add(gunMesh);  // attach to camera
-                // position in front-right of view, like a held weapon
-                gunMesh.position.set(0.4, -0.4, -0.8);
-                gunMesh.rotation.set(-Math.PI / 2, 0, 0);
+                gunMesh.rotation.set(0, Math.PI / 2, 0);
                 gunMesh.scale.set(0.3, 0.3, 0.3);
             }
         } else {
-            // drop it back into the world
+            // drop - place it at camera's current position on the floor
             gunPickedUp = false;
-            scene.attach(gunMesh);  // detach from camera, back to world space
-            gunMesh.rotation.set(Math.PI / 2, 0, Math.PI/6);
+            gunMesh.position.set(camera.position.x, -1.5, camera.position.z);
+            gunMesh.rotation.set(Math.PI / 2, 0, Math.PI / 6);
         }
     }
 });
@@ -428,6 +425,11 @@ haloLight = new THREE.PointLight(0xff88ee, 10, 3, 1);
 haloLight.castShadow = false;
 scene.add(haloLight);
 
+//add cam ligh to illuminate gun 
+const gunLight = new THREE.PointLight(0xffffff, 5, 2, 1);
+gunLight.position.set(0, 0, -0.5); // slightly in front of camera
+camera.add(gunLight);
+
 //add light at candle position
 const candleLight = new THREE.PointLight(0xffee88, 30, 2, 2);
 candleLight.position.set(-1.2, 1.3, -9.5);
@@ -526,9 +528,16 @@ function turnOnTV() {
 function render(time){
     time *= 0.001;
     const delta = clock.getDelta();
-    if (tvOn && newsTV) {
-        newsTV.drawFrame(time);
+    
+    // update held gun position every frame
+    if (gunPickedUp && gunMesh) {
+        const offset = new THREE.Vector3(0.3, -0.3, -0.6);
+        offset.applyQuaternion(camera.quaternion); // rotate offset by camera direction
+        gunMesh.position.copy(camera.position).add(offset);
+        gunMesh.rotation.copy(camera.rotation);
     }
+    
+    if (tvOn && newsTV) newsTV.drawFrame(time);
     flicker(time);
     move_dog(delta);
     move(delta);
