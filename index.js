@@ -36,7 +36,7 @@ const loadManager = new THREE.LoadingManager();
 const loader = new THREE.TextureLoader(loadManager);
 
 //loader for hdr
-const rgbeLoader = new RGBELoader();
+const rgbeLoader = new RGBELoader(loadManager);
 rgbeLoader.load('textures/room.hdr', (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     scene.background = texture;
@@ -135,32 +135,27 @@ function addCollider(object, shrink = 0) {
 
 
 // GLTF Loader ----------------------------------------------------
-const gltfLoader = new GLTFLoader();
+
+let phone, gun, chair, table, lamp, tv, plant, candle, bookshelf,tvtable, carpet;
+
+const gltfLoader = new GLTFLoader(loadManager);
 gltfLoader.load('glb/Phone.glb', (gltf) => {
-    const phone = gltf.scene;
+    phone = gltf.scene;
     enableShadows(gltf);
     phone.scale.set(0.02, 0.02, 0.02);
     phone.position.set(-0.5, -0.3, -1.2);
     phone.rotation.set(0,-Math.PI / 4, 0); 
-    addCollider(phone);
-    scene.add(phone);
-    
-
 });
 let gunMesh = null;
 let gunPickedUp = false;
 gltfLoader.load('glb/Gun.glb', (gltf) => {
-    const gun = gltf.scene;
+    gun = gltf.scene;
     gunMesh = gun; 
     enableShadows(gltf);
     gun.scale.set(0.3, 0.3, 0.3);
     gun.position.set(.2, -0.3, -1);
     gun.rotation.set(Math.PI / 2, 0,Math.PI/6); 
-    addCollider(gun);
-    scene.add(gun);
-    
-
-})
+});
 window.addEventListener('keydown', (e) => {
     if (e.key === 'e' || e.key === 'E') {
         if (!gunMesh) return;
@@ -183,28 +178,22 @@ window.addEventListener('keydown', (e) => {
 });
 
 gltfLoader.load('glb/Chair.glb', (gltf) => {
-    const chair = gltf.scene;
+    chair = gltf.scene;
     enableShadows(gltf);
     chair.scale.set(1, 1, 1);
     chair.position.set(0, -2, -3);
-    addCollider(chair, 0.63);
-    scene.add(chair);
-    
-
-})
+});
 gltfLoader.load('glb/Table.glb', (gltf) => {
-    const table = gltf.scene;
+    table = gltf.scene;
     enableShadows(gltf);
     table.scale.set(3, 3, 3);
     table.position.set(0, -2, -1);
-    addCollider(table);
-    scene.add(table);
-})
+});
 
 let lampOn = true;
 let lampMesh = null;
 gltfLoader.load('glb/Lamp.glb', (gltf) => {
-    const lamp = gltf.scene;
+    lamp = gltf.scene;
     lampMesh = lamp;
     lamp.traverse((child) => {
         if (child.isMesh) {
@@ -223,9 +212,6 @@ gltfLoader.load('glb/Lamp.glb', (gltf) => {
     enableShadows(gltf);
     lamp.scale.set(0.2, 0.2, 0.2);
     lamp.position.set(0, -0.4, -5);
-    addCollider(lamp);
-    scene.add(lamp);
-
 })
 window.addEventListener('keydown', (e) => {
     if (e.key === 'l' || e.key === 'L') {
@@ -247,7 +233,7 @@ let tvMesh = null;
 let tvOn = false;
 
 gltfLoader.load('glb/TV.glb', (gltf) => {
-    const tv = gltf.scene;
+    tv = gltf.scene;
     enableShadows(gltf);
     tv.traverse((child) => {
         if (child.isMesh) {
@@ -267,8 +253,6 @@ gltfLoader.load('glb/TV.glb', (gltf) => {
     tv.scale.set(0.07, 0.07, 0.07);
     tv.position.set(-6, -0.3, -4);
     tv.rotation.set(0, -Math.PI/1.5, Math.PI);
-    addCollider(tv);
-    scene.add(tv);
 })
 
 window.addEventListener('keydown', (e) => {
@@ -287,14 +271,13 @@ window.addEventListener('keydown', (e) => {
 });
 
 gltfLoader.load('glb/Plant.glb', (gltf) => {
-    const plant = gltf.scene;
+    plant = gltf.scene;
     enableShadows(gltf);
     plant.scale.set(3, 3, 3);
     plant.position.set(-6.8, -1, -2.5);
-    scene.add(plant);
 })
 gltfLoader.load('glb/Candle.glb', (gltf) => {
-    const candle = gltf.scene;
+    candle = gltf.scene;
     enableShadows(gltf);
     candle.scale.set(.4, .4, .4);
     candle.position.set(-1.2, .6, -9.5);
@@ -303,20 +286,16 @@ gltfLoader.load('glb/Candle.glb', (gltf) => {
             child.material.emissiveIntensity = 3;
         }
     });
-    addCollider(candle);
-    scene.add(candle);
 })
 gltfLoader.load('glb/Bookshelf.glb', (gltf) => {
-    const bookshelf = gltf.scene;
+    bookshelf = gltf.scene;
     enableShadows(gltf);
     bookshelf.scale.set(3, 1.4, 4);
     bookshelf.position.set(-1.6, -2, -9.5);
     bookshelf.rotation.set(0,-Math.PI/7,0);
-    addCollider(bookshelf);
-    scene.add(bookshelf);
 })
 gltfLoader.load('glb/Carpet.glb', (gltf) => {
-    const carpet = gltf.scene;
+    carpet = gltf.scene;
     enableShadows(gltf);
     carpet.scale.set(4, 4, 4);
     carpet.position.set(-3, -1.9, -4);
@@ -325,16 +304,13 @@ gltfLoader.load('glb/Carpet.glb', (gltf) => {
             child.material.color.multiplyScalar(2); 
         }
     });
-    scene.add(carpet);
 })
 gltfLoader.load('glb/TVTable.glb', (gltf) => {
-    const tvtable = gltf.scene;
+    tvtable = gltf.scene;
     enableShadows(gltf);
     tvtable.scale.set(2, 2, 3);
     tvtable.position.set(-6.3, -2, -5);
     tvtable.rotation.set(0,-Math.PI/2,0);
-    addCollider(tvtable);
-    scene.add(tvtable);
 })
 let dog; //pasing as global, since going to be moving dog around
 gltfLoader.load('glb/Dog.glb', (gltf) => {
@@ -342,8 +318,6 @@ gltfLoader.load('glb/Dog.glb', (gltf) => {
     enableShadows(gltf);
     dog.scale.set(1.5, 1.5, 1.5);
     dog.position.set(-3, -2.4, 3);
-    addCollider(dog);
-    scene.add(dog);
 })
 let skateboard;
 gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
@@ -351,8 +325,6 @@ gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
     enableShadows(gltf);
     skateboard.scale.set(.1, .1, .1);
     skateboard.position.set(-3, -2.6, 3);
-    addCollider(skateboard);
-    scene.add(skateboard);
 })
 
 //----------------------------------------------------------------
@@ -605,11 +577,52 @@ loadManager.onProgress = (urlOfLastItemLoaded, itemsLoaded, itemsTotal) => {
 };
 
 let halo;
+
 function main(){
 
     //render scene once textures load
     loadManager.onLoad = () => {
         loadingElem.style.display ='none';
+
+        scene.add(phone);
+        addCollider(phone);
+        
+        scene.add(gun);
+        addCollider(gun);
+        
+        scene.add(chair);
+        addCollider(chair, 0.63);
+
+        scene.add(table);
+        addCollider(table);
+
+        scene.add(lamp);
+        addCollider(lamp);
+
+        scene.add(tv);
+        addCollider(tv);
+
+        scene.add(plant);
+        addCollider(plant);
+
+        scene.add(candle);
+        addCollider(candle);
+
+        scene.add(bookshelf);
+        addCollider(bookshelf);
+
+        scene.add(tvtable);
+        addCollider(tvtable);
+
+        scene.add(carpet);
+        addCollider(carpet);
+
+        scene.add(dog);
+        addCollider(dog);
+
+        scene.add(skateboard);
+        addCollider(skateboard);
+
         const floor = makeInstanceTexture(floorGeometry, floorMaterial,-1);
         floor.receiveShadow = true;
         floor.rotation.x = -Math.PI / 2; // rotate flat
