@@ -124,14 +124,42 @@ gltfLoader.load('glb/Phone.glb', (gltf) => {
     phone.rotation.set(0,-Math.PI / 4, 0); 
     scene.add(phone);
 });
+let gunMesh = null;
+let gunPickedUp = false;
 gltfLoader.load('glb/Gun.glb', (gltf) => {
     const gun = gltf.scene;
+    gunMesh = gun; 
     enableShadows(gltf);
     gun.scale.set(0.3, 0.3, 0.3);
     gun.position.set(.2, -0.3, -1);
     gun.rotation.set(Math.PI / 2, 0,Math.PI/6); 
     scene.add(gun);
 })
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'e' || e.key === 'E') {
+        if (!gunMesh) return;
+
+        if (!gunPickedUp) {
+            // check distance from camera to gun
+            const dist = camera.position.distanceTo(gunMesh.position);
+            if (dist < 3) {
+                gunPickedUp = true;
+                camera.add(gunMesh);  // attach to camera
+                // position in front-right of view, like a held weapon
+                gunMesh.position.set(0.4, -0.4, -0.8);
+                gunMesh.rotation.set(-Math.PI / 2, 0, 0);
+                gunMesh.scale.set(0.3, 0.3, 0.3);
+            }
+        } else {
+            // drop it back into the world
+            gunPickedUp = false;
+            scene.attach(gunMesh);  // detach from camera, back to world space
+            gunMesh.rotation.set(Math.PI / 2, 0, Math.PI/6);
+        }
+    }
+});
+
 gltfLoader.load('glb/Chair.glb', (gltf) => {
     const chair = gltf.scene;
     enableShadows(gltf);
