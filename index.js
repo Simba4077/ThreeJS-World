@@ -152,8 +152,8 @@ gltfLoader.load('glb/Dog.glb', (gltf) => {
 //----------------------------------------------------------------
 const waypoints = [
     new THREE.Vector3(3, -2, 3),
-    new THREE.Vector3(3, -2, -3),
-    new THREE.Vector3(-3, -2, -3),
+    new THREE.Vector3(3, -2, -5),
+    new THREE.Vector3(-3, -2, -5),
     new THREE.Vector3(-3, -2, 3),
 ];
 let waypointIndex = 0;
@@ -262,8 +262,7 @@ function makeInstance(geometry, color, x){
 }
 
 
-function move(){
-    const delta = clock.getDelta();
+function move(delta){
 
     //WASD
     const speed = 5 * delta
@@ -280,7 +279,7 @@ function render(time){
     time *= 0.001;
     const delta = clock.getDelta();
     move_dog(delta);
-    move();
+    move(delta);
     composer.render();
 
     // //animate Mesh cube array
