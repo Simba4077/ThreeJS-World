@@ -53,10 +53,21 @@ const materials = [
 //-----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
-const color = 0xFFFFFF;
-const intensity = 3; 
-const light = new THREE.DirectionalLight(color, intensity);
+
+//Diffuse/directional lighting -------------------------
+const diffuse_color = 0xFFFFFF;
+const intensity = 30; 
+const light = new THREE.DirectionalLight(diffuse_color, intensity);
 light.position.set(-1,2,4);
+//------------------------------------------------------
+
+//Ambient lighting -------------------------------------
+const ambient_color = 0xFFFFFF;
+const a_intensity = 1;
+const a_light = new THREE.AmbientLight(ambient_color, a_intensity);
+scene.add(a_light);
+//------------------------------------------------------
+
 //-----------------------------------------------------------------
 
 //instead of using first person or orbit controls, use PointerLockControls .....
