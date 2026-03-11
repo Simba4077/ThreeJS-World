@@ -31,3 +31,20 @@ body {
     margin: 0;
     overflow: hidden;
 }
+
+#controls-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    color: #ffcc00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(255, 200, 0, 0.6);
+    opacity: 0.85;
+}
+
+#controls-hint p {
+    margin: 0;
+}
