@@ -4,25 +4,36 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 //import pointer lock controls
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+//import HDR loader
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 // --------------------------------------------------------------
 
 
 // Camera setup --------------------------------------------------
 //camera default to looking across -z axis, with +y axis facing up
-const fov = 100;
+const fov = 30;
 const aspect = 2; // the canvas default
 const near = 0.1;
 const far = 100;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.z = 2;
+camera.position.y=1.3;
 //-----------------------------------------------------------------
 
 // Texture loader -------------------------------------------------
 const loadManager = new THREE.LoadingManager();
 const loader = new THREE.TextureLoader(loadManager);
 
-// cube loader for sky box
-const sky_loader = new THREE.CubeTextureLoader();
+//loader for hdr
+const rgbeLoader = new RGBELoader();
+rgbeLoader.load('textures/room.hdr', (texture) => {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = texture;
+    scene.backgroundIntensity = 0.4; // dim the HDR background
+    scene.backgroundBlurriness = 0.1; // slight blur blends it better
+
+});
+
 
 // ----------------------------------------------------------------
 // Scene, canvas, and renderer setup ------------------------------
@@ -51,15 +62,6 @@ const materials = [
     new THREE.MeshBasicMaterial({map: loader.load('textures/flower-6.jpg')}),
 ];
 
-const sky_texture = sky_loader.load([
-    'textures/pos-x.jpg',
-    'textures/neg-x.jpg',
-    'textures/pos-y.jpg',
-    'textures/neg-y.jpg',
-    'textures/pos-z.jpg',
-    'textures/neg-z.jpg'
-]);
-
 const floorTexture = loader.load('textures/Floor.jpg');
 floorTexture.wrapS = THREE.RepeatWrapping;
 floorTexture.wrapT = THREE.RepeatWrapping;
@@ -84,8 +86,8 @@ gltfLoader.load('glb/Gun.glb', (gltf) => {
 })
 gltfLoader.load('glb/Chair.glb', (gltf) => {
     const chair = gltf.scene;
-    chair.scale.set(0.2, 0.2, 0.2);
-    chair.position.set(0, -1, -3);
+    chair.scale.set(1, 1, 1);
+    chair.position.set(0, -2, -3);
     scene.add(chair);
 })
 //----------------------------------------------------------------
@@ -101,7 +103,7 @@ light.position.set(-1,2,4);
 
 //Ambient lighting -------------------------------------
 const ambient_color = 0xFFFFFF;
-const a_intensity = 1;
+const a_intensity = 0.3;
 const a_light = new THREE.AmbientLight(ambient_color, a_intensity);
 scene.add(a_light);
 //------------------------------------------------------
@@ -170,18 +172,18 @@ function render(time){
     move();
     renderer.render(scene, camera);
 
-    //animate Mesh cube array
-    cubes.forEach((cube, ndx) => {
-        const speed = 1 + ndx * .1;
-        const rot = time * speed;
-        cube.rotation.x = rot;
-        cube.rotation.y = rot;
-    })
+    // //animate Mesh cube array
+    // cubes.forEach((cube, ndx) => {
+    //     const speed = 1 + ndx * .1;
+    //     const rot = time * speed;
+    //     cube.rotation.x = rot;
+    //     cube.rotation.y = rot;
+    // })
 
     requestAnimationFrame(render);
 }
 
-const cubes = [];
+// const cubes = [];
 const loadingElem = document.querySelector('#loading');
 const progressBarElem = loadingElem.querySelector('.progressbar');
 loadManager.onProgress = (urlOfLastItemLoaded, itemsLoaded, itemsTotal) => {
@@ -192,30 +194,18 @@ loadManager.onProgress = (urlOfLastItemLoaded, itemsLoaded, itemsTotal) => {
 
 function main(){
 
-    //add mesh to scene
-    scene.add(light);
-    scene.background = sky_texture;
-
-
     //render scene once textures load
     loadManager.onLoad = () => {
         loadingElem.style.display ='none';
-        // Mesh -----------------------------------------------------------
-        //call makeInstance 3 times and story Mesh instances in an array
-        cubes.push(
-            makeInstanceTexture(boxGeometry, materials, 0),
-            makeInstance(boxGeometry, 0x8844aa, -2),
-            makeInstance(boxGeometry, 0xaa8844, 2),
-        );
-        //-----------------------------------------------------------------
-
         const floor = makeInstanceTexture(boxGeometry, floorMaterial,-1);
         floor.scale.set(30,.2,30);
         floor.position.set(0,-2,0);
-
-
         requestAnimationFrame(render);
     };
+
+    
+    //add mesh to scene
+    scene.add(light);
 
 }
 
