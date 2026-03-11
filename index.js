@@ -198,7 +198,7 @@ gltfLoader.load('glb/Dog.glb', (gltf) => {
     dog = gltf.scene;
     enableShadows(gltf);
     dog.scale.set(1.5, 1.5, 1.5);
-    dog.position.set(-3, -1.2, 3);
+    dog.position.set(-3, -2.4, 3);
     scene.add(dog);
 })
 let skateboard;
@@ -206,7 +206,7 @@ gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
     skateboard = gltf.scene;
     enableShadows(gltf);
     skateboard.scale.set(.1, .1, .1);
-    skateboard.position.set(-3, -1.4, 3);
+    skateboard.position.set(-3, -2.6, 3);
     scene.add(skateboard);
 })
 
@@ -287,8 +287,22 @@ scene.add(pointLight)
 const lampLight = new THREE.PointLight(0xffee88, 30, 10, 2);
 lampLight.position.set(0, 1, -1); // slightly above lamp base
 lampLight.castShadow = true;
-
 scene.add(lampLight);
+
+//add light at candle position
+const candleLight = new THREE.PointLight(0xffee88, 30, 2, 2);
+candleLight.position.set(-1.2, 1.3, -9.5);
+candleLight.shadow.camera.near = 0.1;
+candleLight.shadow.camera.far = 10;
+candleLight.shadow.bias = -0.001; // was -0.005, reduce it
+candleLight.shadow.normalBias = 0.05; // increase this
+candleLight.castShadow = true;
+scene.add(candleLight);
+
+//add candle flicker
+function flicker(time){
+    candleLight.intensity = 15 + Math.sin(time * 10) * 2 + Math.random() * 2;
+}
 //------------------------------------------------------
 
 //Hemisphere lighting -----------------------------------
@@ -357,18 +371,10 @@ const clock = new THREE.Clock();
 function render(time){
     time *= 0.001;
     const delta = clock.getDelta();
+    flicker(time);
     move_dog(delta);
     move(delta);
     composer.render();
-
-    // //animate Mesh cube array
-    // cubes.forEach((cube, ndx) => {
-    //     const speed = 1 + ndx * .1;
-    //     const rot = time * speed;
-    //     cube.rotation.x = rot;
-    //     cube.rotation.y = rot;
-    // })
-
     requestAnimationFrame(render);
 }
 
