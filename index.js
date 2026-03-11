@@ -455,11 +455,16 @@ function move(delta){
 
 }
 
-
+let frameCount = 0;
 const clock = new THREE.Clock();
 function render(time){
     time *= 0.001;
     const delta = clock.getDelta();
+    frameCount++;
+    if (tvOn && tvMesh && frameCount % 3 === 0) {
+        tvMesh.material.emissiveMap = makeStaticTexture();
+        tvMesh.material.needsUpdate = true;
+    }
     flicker(time);
     move_dog(delta);
     move(delta);
