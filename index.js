@@ -2,8 +2,8 @@
 import * as THREE from 'three';
 //import objloader.js
 import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
-//import orbit controls
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+//import pointer lock controls
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 // --------------------------------------------------------------
 
 // OBJ Loader ----------------------------------------------------
@@ -59,13 +59,15 @@ const light = new THREE.DirectionalLight(color, intensity);
 light.position.set(-1,2,4);
 //-----------------------------------------------------------------
 
-
-// Orbit Controls -----------------------------------------------
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.update();
+//instead of using first person or orbit controls, use PointerLockControls .....
+// Pointer Lock Controls -----------------------------------------------
+const controls = new PointerLockControls(camera, document.body);
+canvas.addEventListener('click', () => {controls.lock()});
+//click locks the pointer lock controls
+const keys = {};
+window.addEventListener('keydown', e => keys[e.key] = true);
+window.addEventListener('keyup', e => keys[e.key] = false);
 //-----------------------------------------------------------------
-
-
 
 function makeInstanceTexture(geometry, materials, x){
    
@@ -98,9 +100,24 @@ function makeInstance(geometry, color, x){
     return cube;
 }
 
+
+function move(){
+    const delta = clock.getDelta();
+
+    //WASD
+    const speed = 5 * delta
+    if (keys['w']) controls.moveForward(speed);
+    if (keys['s']) controls.moveForward(-speed);
+    if (keys['a']) controls.moveRight(-speed);
+    if (keys['d']) controls.moveRight(speed);
+
+}
+
+
+const clock = new THREE.Clock();
 function render(time){
     time *= 0.001;
-
+    move();
     renderer.render(scene, camera);
 
     //animate Mesh cube array
