@@ -146,8 +146,12 @@ gltfLoader.load('glb/Table.glb', (gltf) => {
     table.position.set(0, -2, -1);
     scene.add(table);
 })
+
+let lampOn = true;
+let lampMesh = null;
 gltfLoader.load('glb/Lamp.glb', (gltf) => {
     const lamp = gltf.scene;
+    lampMesh = lamp;
     lamp.traverse((child) => {
         if (child.isMesh) {
             const lambert = new THREE.MeshLambertMaterial({
@@ -167,6 +171,21 @@ gltfLoader.load('glb/Lamp.glb', (gltf) => {
     lamp.position.set(0, -0.4, -5);
     scene.add(lamp);
 })
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'l' || e.key === 'L') {
+        lampOn = !lampOn;
+        lampLight.intensity = lampOn ? 30 : 0;
+
+        // dim the lamp shade mesh
+        if (lampMesh) {
+            lampMesh.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.emissiveIntensity = lampOn ? 0.9 : 0;
+                }
+            });
+        }
+    }
+});
 
 let tvMesh = null;
 let tvOn = false;
