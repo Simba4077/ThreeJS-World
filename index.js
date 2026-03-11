@@ -116,6 +116,24 @@ function enableShadows(gltf) {
 }
 //-----------------------------------------------------------------
 
+
+
+//Bounding box logic----------------------------------------------
+const colliders = [];
+
+function addCollider(object, shrink = 0) {
+    const box = new THREE.Box3().setFromObject(object);
+    if (shrink > 0) {
+        box.expandByScalar(-shrink); // negative = shrink
+    }
+    colliders.push(box);
+}
+
+//----------------------------------------------------------------
+
+
+
+
 // GLTF Loader ----------------------------------------------------
 const gltfLoader = new GLTFLoader();
 gltfLoader.load('glb/Phone.glb', (gltf) => {
@@ -124,7 +142,10 @@ gltfLoader.load('glb/Phone.glb', (gltf) => {
     phone.scale.set(0.02, 0.02, 0.02);
     phone.position.set(-0.5, -0.3, -1.2);
     phone.rotation.set(0,-Math.PI / 4, 0); 
+    addCollider(phone);
     scene.add(phone);
+    
+
 });
 let gunMesh = null;
 let gunPickedUp = false;
@@ -135,7 +156,10 @@ gltfLoader.load('glb/Gun.glb', (gltf) => {
     gun.scale.set(0.3, 0.3, 0.3);
     gun.position.set(.2, -0.3, -1);
     gun.rotation.set(Math.PI / 2, 0,Math.PI/6); 
+    addCollider(gun);
     scene.add(gun);
+    
+
 })
 window.addEventListener('keydown', (e) => {
     if (e.key === 'e' || e.key === 'E') {
@@ -149,10 +173,11 @@ window.addEventListener('keydown', (e) => {
                 gunMesh.scale.set(0.3, 0.3, 0.3);
             }
         } else {
-            // drop - place it at camera's current position on the floor
             gunPickedUp = false;
-            gunMesh.position.set(camera.position.x, -1.5, camera.position.z);
+            gunMesh.position.set(0.2, -0.3, -1);
             gunMesh.rotation.set(Math.PI / 2, 0, Math.PI / 6);
+            gunMesh.scale.set(0.3, 0.3, 0.3);
+
         }
     }
 });
@@ -162,13 +187,17 @@ gltfLoader.load('glb/Chair.glb', (gltf) => {
     enableShadows(gltf);
     chair.scale.set(1, 1, 1);
     chair.position.set(0, -2, -3);
+    addCollider(chair, 0.63);
     scene.add(chair);
+    
+
 })
 gltfLoader.load('glb/Table.glb', (gltf) => {
     const table = gltf.scene;
     enableShadows(gltf);
     table.scale.set(3, 3, 3);
     table.position.set(0, -2, -1);
+    addCollider(table);
     scene.add(table);
 })
 
@@ -194,7 +223,9 @@ gltfLoader.load('glb/Lamp.glb', (gltf) => {
     enableShadows(gltf);
     lamp.scale.set(0.2, 0.2, 0.2);
     lamp.position.set(0, -0.4, -5);
+    addCollider(lamp);
     scene.add(lamp);
+
 })
 window.addEventListener('keydown', (e) => {
     if (e.key === 'l' || e.key === 'L') {
@@ -214,19 +245,6 @@ window.addEventListener('keydown', (e) => {
 
 let tvMesh = null;
 let tvOn = false;
-
-function makeStaticTexture() {
-    const size = 256;
-    const data = new Uint8Array(size * size * 4);
-    for (let i = 0; i < data.length; i += 4) {
-        const v = Math.random() * 255;
-        data[i] = data[i+1] = data[i+2] = v;
-        data[i+3] = 255;
-    }
-    const texture = new THREE.DataTexture(data, size, size);
-    texture.needsUpdate = true;
-    return texture;
-}
 
 gltfLoader.load('glb/TV.glb', (gltf) => {
     const tv = gltf.scene;
@@ -249,6 +267,7 @@ gltfLoader.load('glb/TV.glb', (gltf) => {
     tv.scale.set(0.07, 0.07, 0.07);
     tv.position.set(-6, -0.3, -4);
     tv.rotation.set(0, -Math.PI/1.5, Math.PI);
+    addCollider(tv);
     scene.add(tv);
 })
 
@@ -284,6 +303,7 @@ gltfLoader.load('glb/Candle.glb', (gltf) => {
             child.material.emissiveIntensity = 3;
         }
     });
+    addCollider(candle);
     scene.add(candle);
 })
 gltfLoader.load('glb/Bookshelf.glb', (gltf) => {
@@ -292,6 +312,7 @@ gltfLoader.load('glb/Bookshelf.glb', (gltf) => {
     bookshelf.scale.set(3, 1.4, 4);
     bookshelf.position.set(-1.6, -2, -9.5);
     bookshelf.rotation.set(0,-Math.PI/7,0);
+    addCollider(bookshelf);
     scene.add(bookshelf);
 })
 gltfLoader.load('glb/Carpet.glb', (gltf) => {
@@ -312,6 +333,7 @@ gltfLoader.load('glb/TVTable.glb', (gltf) => {
     tvtable.scale.set(2, 2, 3);
     tvtable.position.set(-6.3, -2, -5);
     tvtable.rotation.set(0,-Math.PI/2,0);
+    addCollider(tvtable);
     scene.add(tvtable);
 })
 let dog; //pasing as global, since going to be moving dog around
@@ -320,6 +342,7 @@ gltfLoader.load('glb/Dog.glb', (gltf) => {
     enableShadows(gltf);
     dog.scale.set(1.5, 1.5, 1.5);
     dog.position.set(-3, -2.4, 3);
+    addCollider(dog);
     scene.add(dog);
 })
 let skateboard;
@@ -328,11 +351,15 @@ gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
     enableShadows(gltf);
     skateboard.scale.set(.1, .1, .1);
     skateboard.position.set(-3, -2.6, 3);
+    addCollider(skateboard);
     scene.add(skateboard);
 })
 
-
 //----------------------------------------------------------------
+
+
+
+
 const waypoints = [
     new THREE.Vector3(3, -1, 3),
     new THREE.Vector3(3, -1, -5),
@@ -495,17 +522,41 @@ function makeInstance(geometry, color, x){
     return cube;
 }
 
+//Collision check-----------------------------------------------
+function checkCollision(newPos) {
+    const playerBox = new THREE.Box3(
+        new THREE.Vector3(newPos.x - 0.4, newPos.y - 1, newPos.z - 0.4),
+        new THREE.Vector3(newPos.x + 0.4, newPos.y + 0.5, newPos.z + 0.4)
+    );
+    for (const box of colliders) {
+        if (playerBox.intersectsBox(box)) return true;
+    }
+    return false;
+}
+//---------------------------------------------------------------
 
-function move(delta){
+function move(delta) {
+    const speed = 5 * delta;
 
-    //WASD
-    const speed = 5 * delta
-    if (keys['w']) controls.moveForward(speed);
-    if (keys['s']) controls.moveForward(-speed);
+    // save position before X movement
+    const oldPos = camera.position.clone();
     if (keys['a']) controls.moveRight(-speed);
     if (keys['d']) controls.moveRight(speed);
+    if (checkCollision(camera.position)) {
+        camera.position.x = oldPos.x;
+        camera.position.z = oldPos.z;
+    }
 
+    // save position before Z movement
+    const midPos = camera.position.clone();
+    if (keys['w']) controls.moveForward(speed);
+    if (keys['s']) controls.moveForward(-speed);
+    if (checkCollision(camera.position)) {
+        camera.position.x = midPos.x;
+        camera.position.z = midPos.z;
+    }
 }
+
 
 let frameCount = 0;
 const clock = new THREE.Clock();
@@ -710,7 +761,7 @@ function createNewsTexture() {
         ctx.restore();
         
         // advance ticker
-        tickerX -= 1;
+        tickerX -= 2;
         const textWidth = ctx.measureText(tickerText).width;
         if (tickerX < -textWidth) {
             tickerX = 512;
