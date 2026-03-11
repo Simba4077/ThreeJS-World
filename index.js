@@ -1,24 +1,18 @@
 //import three.js -----------------------------------------------
 import * as THREE from 'three';
-//import objloader.js
-import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+//import gltfloader.js
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 //import pointer lock controls
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 // --------------------------------------------------------------
 
-// OBJ Loader ----------------------------------------------------
-const objLoader = new OBJLoader();
-objLoader.load('obj/windmill_001.obj', (root) => {
-    scene.add(root);
-})
-//----------------------------------------------------------------
 
 // Camera setup --------------------------------------------------
 //camera default to looking across -z axis, with +y axis facing up
 const fov = 100;
 const aspect = 2; // the canvas default
 const near = 0.1;
-const far = 5;
+const far = 100;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.z = 2;
 //-----------------------------------------------------------------
@@ -35,6 +29,9 @@ const sky_loader = new THREE.CubeTextureLoader();
 const scene = new THREE.Scene();
 const canvas = document.getElementById("myCanvas");
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 //-----------------------------------------------------------------
 
 // Geometries -----------------------------------------------------
@@ -62,8 +59,31 @@ const sky_texture = sky_loader.load([
     'textures/pos-z.jpg',
     'textures/neg-z.jpg'
 ]);
-
 //-----------------------------------------------------------------
+
+
+// GLTF Loader ----------------------------------------------------
+const gltfLoader = new GLTFLoader();
+gltfLoader.load(
+    'glb/Phone.glb', 
+    (gltf) => {
+        console.log('loaded:', gltf);
+        const phone = gltf.scene;
+        phone.traverse((child) => {
+            console.log('child:', child.name, child.type);
+        });
+        phone.scale.set(0.3, 0.3, 0.3);
+        phone.position.set(0, -3, 0);
+        scene.add(phone);
+    },
+    (progress) => {
+        console.log('progress:', progress);
+    },
+    (error) => {
+        console.error('error loading glb:', error); // this will tell us what's wrong
+    }
+);
+//----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
 
@@ -100,7 +120,6 @@ function makeInstanceTexture(geometry, materials, x){
 
     //add to scene
     scene.add(cube);
-    scene.background = sky_texture;
 
         
     //set position
@@ -170,6 +189,8 @@ function main(){
 
     //add mesh to scene
     scene.add(light);
+    scene.background = sky_texture;
+
 
     //render scene once textures load
     loadManager.onLoad = () => {
