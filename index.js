@@ -84,7 +84,7 @@ const gltfLoader = new GLTFLoader();
 gltfLoader.load('glb/Phone.glb', (gltf) => {
     const phone = gltf.scene;
     phone.scale.set(0.02, 0.02, 0.02);
-    phone.position.set(-0.5, -0.1, -1.2);
+    phone.position.set(-0.5, -0.2, -1.2);
     phone.rotation.set(0,-Math.PI / 4, 0); 
     scene.add(phone);
 });
@@ -110,16 +110,17 @@ gltfLoader.load('glb/Table.glb', (gltf) => {
 gltfLoader.load('glb/Lamp.glb', (gltf) => {
     const lamp = gltf.scene;
     lamp.scale.set(0.2, 0.2, 0.2);
-    lamp.position.set(0, -0.2, -5);
+    lamp.position.set(0, -0.3, -5);
     scene.add(lamp);
 })
+
 //----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
 
 //Diffuse/directional lighting -------------------------
 const diffuse_color = 0xFFFFFF;
-const intensity = 1; 
+const intensity = 2; 
 const light = new THREE.DirectionalLight(diffuse_color, intensity);
 light.position.set(-1,2,4);
 //------------------------------------------------------
@@ -132,10 +133,16 @@ light.position.set(-1,2,4);
 //------------------------------------------------------
 
 //Point lighting ---------------------------------------
-const pointLight = new THREE.PointLight(0xffffff, 180, 30, 2);
+const pointLight = new THREE.PointLight(0xffffff, 100, 30, 2);
 pointLight.castShadow = true;
 pointLight.position.set(0, 4.5, -2); // overhead light
 scene.add(pointLight)
+
+// add light at lamp position
+const lampLight = new THREE.PointLight(0xffee88, 30, 10, 2);
+lampLight.position.set(0, 1, -1); // slightly above lamp base
+lampLight.castShadow = true;
+scene.add(lampLight);
 //------------------------------------------------------
 
 //Hemisphere lighting -----------------------------------
