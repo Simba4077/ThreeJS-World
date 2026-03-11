@@ -183,6 +183,22 @@ gltfLoader.load('glb/Chair.glb', (gltf) => {
     chair.scale.set(1, 1, 1);
     chair.position.set(0, -2, -3);
 });
+let sitting = false;
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'c' || e.key === 'C') {
+        sitting = !sitting;
+        if (sitting) {
+            controls.unlock();
+            camera.position.set(-0.4, 1.3, -2.9); // sitting in chair
+            camera.lookAt(-6, 0.1, -4); // looking at TV
+        } else {
+            camera.position.set(-2, 1.4, 8); // back to default
+        }
+    }
+});
+
+
 gltfLoader.load('glb/Table.glb', (gltf) => {
     table = gltf.scene;
     enableShadows(gltf);
@@ -508,6 +524,8 @@ function checkCollision(newPos) {
 //---------------------------------------------------------------
 
 function move(delta) {
+
+    if (sitting) return;
     const speed = 5 * delta;
 
     // save position before X movement
