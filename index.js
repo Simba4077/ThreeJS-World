@@ -45,7 +45,9 @@ rgbeLoader.load('textures/room.hdr', (texture) => {
 const scene = new THREE.Scene();
 const canvas = document.getElementById("myCanvas");
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
-renderer.toneMapping = THREE.CineonToneMapping;
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 0.68;
+renderer.shadowMap.enabled = true;
 //-----------------------------------------------------------------
 
 //Vignette effects-------------------------------------------------
@@ -53,8 +55,8 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
 const vignettePass = new ShaderPass(VignetteShader);
-vignettePass.uniforms['offset'].value = 0.95; // size of vignette
-vignettePass.uniforms['darkness'].value = 1.6; // how dark the edges are
+vignettePass.uniforms['offset'].value = 0.5; // size of vignette
+vignettePass.uniforms['darkness'].value = 4 // how dark the edges are
 composer.addPass(vignettePass);
 //-----------------------------------------------------------------
 
@@ -107,10 +109,22 @@ light.position.set(-1,2,4);
 //------------------------------------------------------
 
 //Ambient lighting -------------------------------------
-const ambient_color = 0xFFFFFF;
-const a_intensity = 0.3;
-const a_light = new THREE.AmbientLight(ambient_color, a_intensity);
-scene.add(a_light);
+// const ambient_color = 0xFFFFFF;
+// const a_intensity = 0.3;
+// const a_light = new THREE.AmbientLight(ambient_color, a_intensity);
+// scene.add(a_light);
+//------------------------------------------------------
+
+//Point lighting ---------------------------------------
+const pointLight = new THREE.PointLight(0xffffff, 180, 30, 2);
+pointLight.castShadow = true;
+pointLight.position.set(0, 4.5, -2); // overhead light
+scene.add(pointLight)
+//------------------------------------------------------
+
+//Hemisphere lighting -----------------------------------
+const hemiLight = new THREE.HemisphereLight(0xddeeff, 0x0f0e0d, 0.02);
+scene.add(hemiLight);
 //------------------------------------------------------
 
 //-----------------------------------------------------------------
@@ -203,6 +217,7 @@ function main(){
     loadManager.onLoad = () => {
         loadingElem.style.display ='none';
         const floor = makeInstanceTexture(floorGeometry, floorMaterial,-1);
+        floor.receiveShadow = true;
         floor.rotation.x = -Math.PI / 2; // rotate flat
         floor.position.set(0,-1.9,0);
         requestAnimationFrame(render);
