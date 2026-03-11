@@ -11,6 +11,9 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { VignetteShader } from 'three/addons/shaders/VignetteShader.js';
+//SMAA import
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+
 // --------------------------------------------------------------
 
 
@@ -50,12 +53,24 @@ const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.toneMapping = THREE.ReinhardToneMapping;
 renderer.toneMappingExposure = 0.68;
 renderer.shadowMap.enabled = true;
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+
+// handle window resize
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+});
 //-----------------------------------------------------------------
+
+
 
 //Vignette effects-------------------------------------------------
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-
+composer.addPass(new SMAAPass(window.innerWidth, window.innerHeight)); 
 const vignettePass = new ShaderPass(VignetteShader);
 vignettePass.uniforms['offset'].value = 0.5; // size of vignette
 vignettePass.uniforms['darkness'].value = 4 // how dark the edges are
@@ -149,6 +164,10 @@ light.position.set(-1,2,4);
 //Point lighting ---------------------------------------
 const pointLight = new THREE.PointLight(0xffffff, 100, 30, 2);
 pointLight.castShadow = true;
+pointLight.shadow.bias = -0.005;
+pointLight.shadow.normalBias = 0.02;
+pointLight.shadow.mapSize.width = 1024;
+pointLight.shadow.mapSize.height = 1024;
 pointLight.position.set(0, 4.5, -2); // overhead light
 scene.add(pointLight)
 
@@ -156,6 +175,7 @@ scene.add(pointLight)
 const lampLight = new THREE.PointLight(0xffee88, 30, 10, 2);
 lampLight.position.set(0, 1, -1); // slightly above lamp base
 lampLight.castShadow = true;
+
 scene.add(lampLight);
 //------------------------------------------------------
 
