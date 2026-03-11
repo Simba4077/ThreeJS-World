@@ -92,6 +92,7 @@ const boxHeight = 1;
 const boxDepth = 1;
 const boxGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 const floorGeometry = new THREE.PlaneGeometry(100, 100);
+const torusGeometry = new THREE.TorusGeometry( 0.2, 0.05, 16,32);
 //-----------------------------------------------------------------
 
 // Material -------------------------------------------------------
@@ -259,6 +260,7 @@ function lerpAngle(current, target, t) {
 function move_dog(delta){
     if (!dog) return;
     if(!skateboard) return;
+    if(!halo) return;
     
     const speed = 2;
     const target = waypoints[waypointIndex];
@@ -266,17 +268,20 @@ function move_dog(delta){
     const distance = direction.length();
     const direction2 = target.clone().sub(skateboard.position);
     const distance2 = direction.length();
+    const direction3 = target.clone().sub(halo.position);
+    const distance3 = direction.length();
 
-    if (distance < 0.1 || distance2 < 0.1) {
+    if (distance < 0.1 || distance2 < 0.1 || direction3 < 0.3 ){
         // reached waypoint, move to next
         waypointIndex = (waypointIndex + 1) % waypoints.length;
     } else {
         // move toward waypoint
         direction.normalize();
         direction2.normalize();
+        direction3.normalize();
         dog.position.addScaledVector(direction, speed * delta);
         skateboard.position.addScaledVector(direction, speed * delta);
-
+        halo.position.addScaledVector(direction, speed * delta);
 
         // face direction of movement
         const targetRotation = Math.atan2(direction.x, direction.z);
@@ -416,7 +421,7 @@ loadManager.onProgress = (urlOfLastItemLoaded, itemsLoaded, itemsTotal) => {
     progressBarElem.style.transform = `scaleX(${progress})`;
 };
 
-
+let halo;
 function main(){
 
     //render scene once textures load
@@ -426,10 +431,17 @@ function main(){
         floor.receiveShadow = true;
         floor.rotation.x = -Math.PI / 2; // rotate flat
         floor.position.set(0,-1.9,0);
+
+        halo = makeInstance(torusGeometry, 0xff88ee, 1);
+        halo.rotation.x = Math.PI/2;
+        halo.position.set(
+            -3,
+            -2.4 + .8,
+            3
+        );
+
         requestAnimationFrame(render);
     };
-
-    
     //add mesh to scene
     scene.add(light);
 
