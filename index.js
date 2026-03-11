@@ -13,7 +13,8 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { VignetteShader } from 'three/addons/shaders/VignetteShader.js';
 //SMAA import
 import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
-
+//Bloom post processing import
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 // --------------------------------------------------------------
 
 
@@ -71,6 +72,14 @@ window.addEventListener('resize', () => {
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 composer.addPass(new SMAAPass(window.innerWidth, window.innerHeight)); 
+// bloom pass
+const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    .3,  // strength
+    0.2,  // radius
+    0.999  // threshold - only pixels brighter than this bloom
+);
+composer.addPass(bloomPass);
 const vignettePass = new ShaderPass(VignetteShader);
 vignettePass.uniforms['offset'].value = 0.5; // size of vignette
 vignettePass.uniforms['darkness'].value = 4 // how dark the edges are
@@ -138,9 +147,23 @@ gltfLoader.load('glb/Table.glb', (gltf) => {
 })
 gltfLoader.load('glb/Lamp.glb', (gltf) => {
     const lamp = gltf.scene;
+    lamp.traverse((child) => {
+        if (child.isMesh) {
+            const lambert = new THREE.MeshLambertMaterial({
+                map: child.material.map,
+                color: child.material.color,
+                transparent: child.material.transparent,
+                opacity: child.material.opacity,
+                emissive: child.material.color, // glow with own color
+                emissiveMap: child.material.map, // use texture for glow
+                emissiveIntensity: 0.9,          // soft inner glow
+            });
+            child.material = lambert;
+        }
+    });
     enableShadows(gltf);
     lamp.scale.set(0.2, 0.2, 0.2);
-    lamp.position.set(0, -0.3, -5);
+    lamp.position.set(0, -0.4, -5);
     scene.add(lamp);
 })
 gltfLoader.load('glb/TV.glb', (gltf) => {
@@ -163,6 +186,11 @@ gltfLoader.load('glb/Candle.glb', (gltf) => {
     enableShadows(gltf);
     candle.scale.set(.4, .4, .4);
     candle.position.set(-1.2, .6, -9.5);
+    candle.traverse((child) => {
+        if (child.isMesh && child.material.emissive) {
+            child.material.emissiveIntensity = 3;
+        }
+    });
     scene.add(candle);
 })
 gltfLoader.load('glb/Bookshelf.glb', (gltf) => {
@@ -260,7 +288,7 @@ function move_dog(delta){
 
 //Diffuse/directional lighting -------------------------
 const diffuse_color = 0xFFFFFF;
-const intensity = 2; 
+const intensity = 0.5; 
 const light = new THREE.DirectionalLight(diffuse_color, intensity);
 light.position.set(-1,2,4);
 light.castShadow = true;
@@ -268,26 +296,28 @@ light.castShadow = true;
 
 //Ambient lighting -------------------------------------
 // const ambient_color = 0xFFFFFF;
-// const a_intensity = 0.3;
+// const a_intensity = .3;
 // const a_light = new THREE.AmbientLight(ambient_color, a_intensity);
 // scene.add(a_light);
 //------------------------------------------------------
 
 //Point lighting ---------------------------------------
-const pointLight = new THREE.PointLight(0xffffff, 100, 30, 2);
+const pointLight = new THREE.PointLight(0xffffff, 140, 30, 2);
 pointLight.castShadow = true;
 pointLight.shadow.bias = -0.005;
 pointLight.shadow.normalBias = 0.02;
 pointLight.shadow.mapSize.width = 1024;
 pointLight.shadow.mapSize.height = 1024;
-pointLight.position.set(0, 4.5, -2); // overhead light
+pointLight.position.set(-5, 4.5, -5); // overhead light
 scene.add(pointLight)
 
 // add light at lamp position
-const lampLight = new THREE.PointLight(0xffee88, 30, 10, 2);
-lampLight.position.set(0, 1, -1); // slightly above lamp base
-lampLight.castShadow = true;
+const lampLight = new THREE.PointLight(0xffee88, 30, 3, 1);
+lampLight.castShadow = false;
+lampLight.position.set(-0.34, 0.9, -0.59); // center x/z, slightly below top
 scene.add(lampLight);
+
+
 
 //add light at candle position
 const candleLight = new THREE.PointLight(0xffee88, 30, 2, 2);
