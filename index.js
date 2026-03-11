@@ -261,6 +261,11 @@ function move_dog(delta){
     if (!dog) return;
     if(!skateboard) return;
     if(!halo) return;
+
+    if (haloLight) {
+    haloLight.position.set(dog.position.x, dog.position.y + 1, dog.position.z);
+    }
+
     
     const speed = 2;
     const target = waypoints[waypointIndex];
@@ -271,7 +276,7 @@ function move_dog(delta){
     const direction3 = target.clone().sub(halo.position);
     const distance3 = direction.length();
 
-    if (distance < 0.1 || distance2 < 0.1 || direction3 < 0.3 ){
+    if (distance < 0.1 || distance2 < 0.1 || distance3 < 0.3 ){
         // reached waypoint, move to next
         waypointIndex = (waypointIndex + 1) % waypoints.length;
     } else {
@@ -322,7 +327,11 @@ lampLight.castShadow = false;
 lampLight.position.set(-0.34, 0.9, -0.59); // center x/z, slightly below top
 scene.add(lampLight);
 
-
+//add halo light
+let haloLight;
+haloLight = new THREE.PointLight(0xff88ee, 10, 3, 1);
+haloLight.castShadow = false;
+scene.add(haloLight);
 
 //add light at candle position
 const candleLight = new THREE.PointLight(0xffee88, 30, 2, 2);
@@ -432,11 +441,18 @@ function main(){
         floor.rotation.x = -Math.PI / 2; // rotate flat
         floor.position.set(0,-1.9,0);
 
-        halo = makeInstance(torusGeometry, 0xff88ee, 1);
+        halo = new THREE.Mesh(torusGeometry, new THREE.MeshStandardMaterial({
+            color: 0xff88ee,
+            emissive: 0xff88ee,
+            emissiveIntensity: 3,  // bright enough to trigger bloom
+            roughness: 0,
+            metalness: 1,
+        }));
+        scene.add(halo);
         halo.rotation.x = Math.PI/2;
         halo.position.set(
             -3,
-            -2.4 + .8,
+            -2.4 + 1,
             3
         );
 
