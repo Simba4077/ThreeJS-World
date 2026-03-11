@@ -8,7 +8,7 @@ import { PointerLockControls } from 'three/addons/controls/PointerLockControls.j
 
 // OBJ Loader ----------------------------------------------------
 const objLoader = new OBJLoader();
-objLoader.load('windmill_001.obj', (root) => {
+objLoader.load('obj/windmill_001.obj', (root) => {
     scene.add(root);
 })
 //----------------------------------------------------------------
@@ -27,6 +27,9 @@ camera.position.z = 2;
 const loadManager = new THREE.LoadingManager();
 const loader = new THREE.TextureLoader(loadManager);
 
+// cube loader for sky box
+const sky_loader = new THREE.CubeTextureLoader();
+
 // ----------------------------------------------------------------
 // Scene, canvas, and renderer setup ------------------------------
 const scene = new THREE.Scene();
@@ -43,13 +46,23 @@ const boxGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
 // Material -------------------------------------------------------
 const materials = [
-    new THREE.MeshBasicMaterial({map: loader.load('flower-1.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('flower-2.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('flower-3.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('flower-4.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('flower-5.jpg')}),
-    new THREE.MeshBasicMaterial({map: loader.load('flower-6.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-1.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-2.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-3.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-4.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-5.jpg')}),
+    new THREE.MeshBasicMaterial({map: loader.load('textures/flower-6.jpg')}),
 ];
+
+const sky_texture = sky_loader.load([
+    'textures/pos-x.jpg',
+    'textures/neg-x.jpg',
+    'textures/pos-y.jpg',
+    'textures/neg-y.jpg',
+    'textures/pos-z.jpg',
+    'textures/neg-z.jpg'
+]);
+
 //-----------------------------------------------------------------
 
 //Lighting --------------------------------------------------------
@@ -87,6 +100,8 @@ function makeInstanceTexture(geometry, materials, x){
 
     //add to scene
     scene.add(cube);
+    scene.background = sky_texture;
+
         
     //set position
     cube.position.x = x;
