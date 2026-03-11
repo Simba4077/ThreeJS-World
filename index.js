@@ -99,14 +99,14 @@ const gltfLoader = new GLTFLoader();
 gltfLoader.load('glb/Phone.glb', (gltf) => {
     const phone = gltf.scene;
     phone.scale.set(0.02, 0.02, 0.02);
-    phone.position.set(-0.5, -0.2, -1.2);
+    phone.position.set(-0.5, -0.3, -1.2);
     phone.rotation.set(0,-Math.PI / 4, 0); 
     scene.add(phone);
 });
 gltfLoader.load('glb/Gun.glb', (gltf) => {
     const gun = gltf.scene;
     gun.scale.set(0.3, 0.3, 0.3);
-    gun.position.set(.2, -0.2, -1);
+    gun.position.set(.2, -0.3, -1);
     gun.rotation.set(Math.PI / 2, 0,Math.PI/6); 
     scene.add(gun);
 })
@@ -146,14 +146,14 @@ let dog; //pasing as global, since going to be moving dog around
 gltfLoader.load('glb/Dog.glb', (gltf) => {
     dog = gltf.scene;
     dog.scale.set(1.5, 1.5, 1.5);
-    dog.position.set(-6.3, -1.2, -5);
+    dog.position.set(-3, -1.2, 3);
     scene.add(dog);
 })
 let skateboard;
 gltfLoader.load('glb/SkateBoard.glb', (gltf) => {
     skateboard = gltf.scene;
     skateboard.scale.set(.1, .1, .1);
-    skateboard.position.set(-6.3, -1.4, -5);
+    skateboard.position.set(-3, -1.4, 3);
     scene.add(skateboard);
 })
 //----------------------------------------------------------------
@@ -164,6 +164,14 @@ const waypoints = [
     new THREE.Vector3(-3, -1, 3),
 ];
 let waypointIndex = 0;
+
+function lerpAngle(current, target, t) {
+    let diff = target - current;
+    // wrap to -PI to PI range so it always takes the shortest path
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    return current + diff * t;
+}
 
 function move_dog(delta){
     if (!dog) return;
@@ -188,8 +196,9 @@ function move_dog(delta){
 
 
         // face direction of movement
-        dog.rotation.y = Math.atan2(direction.x, direction.z);
-        skateboard.rotation.y = Math.atan2(direction.x, direction.z) + Math.PI / 2;
+        const targetRotation = Math.atan2(direction.x, direction.z);
+        dog.rotation.y = lerpAngle(dog.rotation.y, targetRotation, 5 * delta);
+        skateboard.rotation.y = lerpAngle(skateboard.rotation.y, targetRotation + Math.PI / 2, 5 * delta);
     }
 }
 //Lighting --------------------------------------------------------
